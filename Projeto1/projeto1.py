@@ -1,10 +1,17 @@
 
-# Gabriel Ferreira ist1107030
+###############################
+# Gabriel Ferreira ist1107030 #
+###############################
+
+## Justificação de textos
 
 def limpa_texto(string):
 
     '''Recebe uma cadeia de caracteres sem restrições e devolve uma cadeia de caracteres limpa sem espaços iniciais, finais, sem espaços seguidos, e sem outros caracteres brancos.
     '''
+
+    # se string for vazia devovê-la
+    if string == '': return string 
 
     # substituir os caracteres brancos por espaços
     car_brancos = ['\t', '\n', '\v', '\f', '\r']
@@ -52,6 +59,7 @@ def corta_texto(string, cols):
 
     # se não encontrar um espaço, e len(string) - 1 > limite (já verificado)
     # então há uma palavra maior que o limite
+    # também conta para números negativos
     raise ValueError('justifica texto: argumentos invalidos')
 
 
@@ -99,20 +107,29 @@ def justifica_texto(string, cols):
     '''Recebe uma cadeia de caracteres e um número inteiro, e retorna um tuplo de cadeiasque possuem todas o mesmo comprimento de forma a o texto estar justificado da forma especificada no enunciado.
     Levanta um ValueError se o input for não esperado.
     '''
-    print(__doc__)
-    if string == '' or not isinstance(cols, int):
+
+    if not isinstance(string, str) or string == '':
+        raise ValueError('justifica texto: argumentos invalidos')
+
+    string = limpa_texto(string)
+    
+    if string == ' ' or string == '' or not isinstance(cols, int):
         raise ValueError('justifica texto: argumentos invalidos')
     
-    string = limpa_texto(string)
+    
     string1, string2 = corta_texto(string, cols)
     res = [string1]
+
+    # enquanto a segunda cadeia for maior que o limite continuar a adicionar à lista
     while len(string2) > cols:
         string1, string2 = corta_texto(string2, cols)
         res.append(string1)
 
+    # se esta última for vazia não a adicionar
     if string2 != '':
         res.append(string2)
-
+    
+    # inserir os espaços aos elementos da lista, e avisar a função quando for o último
     for i in range(len(res)):
         if i == len(res)-1:
             res[i] = insere_espacos(res[i], cols, True)
@@ -122,9 +139,95 @@ def justifica_texto(string, cols):
     return tuple(res)
 
 
-def calcula_quocientes():
-   pass
 
-for i in justifica_texto("banana", 10):
-    print(i)
 
+##  Método de Hondt
+
+def calcula_quocientes(dicionario, mandatos):
+    res = {}
+    for i in list(dicionario.keys()):
+        quocientes = []
+        for j in range(1, mandatos+1):
+            quocientes.append(dicionario[i] / j)
+        res[i] = quocientes
+    return res
+
+
+
+
+def ordenar_dicionario(dicionario):
+    copia_dicionario = dicionario.copy()
+    novo_dicionario = {}
+    while len(copia_dicionario) > 0:
+        maior = [0, '']
+        for i in list(copia_dicionario.keys()):
+            if copia_dicionario[i] > maior[0]:
+                maior = [copia_dicionario[i], i]
+        novo_dicionario[maior[1]] = copia_dicionario.pop(maior[1])
+
+    return novo_dicionario
+
+
+
+
+def atribui_mandatos(dicionario, mandatos):
+    
+    # dicionário com a lista de quocientes
+    quocientes = calcula_quocientes(dicionario, mandatos)
+
+    # criar dicionário com as mesmas chaves para registar o último divisor que usamos
+    divisor = {}
+    for i in list(dicionario.keys()):
+        divisor[i] = 0
+    
+    dicionario_ordenado = ordenar_dicionario(dicionario)
+
+    res = []
+    for i in range(mandatos):
+        # maior = [valor, chave]
+        maior = [0, ''] 
+
+        # por cada chave da menor para maior (por votos totais)
+        # encontrar o maior valor
+        for j in list(dicionario_ordenado.keys())[::-1]: 
+            if quocientes[j][divisor[j]] > maior[0]:
+                maior = (quocientes[j][divisor[j]], j)
+
+        # passar ao próximo divisor do vencedor deste mandato
+        divisor[maior[1]] += 1
+        
+        res.append(maior[1])
+
+    return res
+
+def obtem_partidos(dicionario):
+    res = set()
+    for i in list(dicionario.keys()):
+        for j in list(dicionario[i]["votos"].keys()):
+            res.add(j)
+    res = list(res)
+    res.sort()
+    return res
+
+def obtem_resultado_eleicoes(dicionario):
+    partidos = obtem_partidos(dicionario)
+    lista_mandatos = []
+    votos = {i: 0 for i in partidos}
+
+    for i in list(dicionario.keys()):
+        lista_mandatos += (atribui_mandatos(dicionario[i]["votos"], dicionario[i]["deputados"]))
+
+        for j in list(dicionario[i]["votos"]):
+            votos[j] += dicionario[i]["votos"].get(j, 0)
+    
+    votos = ordenar_dicionario(votos)
+
+    mandatos = {}
+    res = []
+    for i in list(votos):
+        res.append((i, lista_mandatos.count(i), votos[i]))
+
+    return res
+    # print(lista_mandatos)
+    # print(votos)
+    # print(ordenar_dicionario(votos))
