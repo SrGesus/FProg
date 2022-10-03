@@ -1,11 +1,15 @@
 
 ###############################
 #  Gabriel  Ferreira  107030  #
+#  Fundamentos da Programação #
+#   Projeto   1   2022/2023   #
 ###############################
 
 
-##############################
-#       Justifica Texto      #
+
+###############################
+#     Justifica     Texto     #
+###############################
 
 def limpa_texto(string):
 
@@ -61,7 +65,7 @@ def corta_texto(string, cols):
 
     # se não encontrar um espaço, e len(string) - 1 > limite (já verificado)
     # então há uma palavra maior que o limite
-    # também conta para números negativos
+    # também conta para limites negativos
     raise ValueError('justifica texto: argumentos invalidos')
 
 
@@ -110,19 +114,24 @@ def justifica_texto(string, cols):
     Levanta um ValueError se o input for não esperado.
     '''
 
-    if not isinstance(string, str) or string == '':
+    # verificar se os tipos de entrada são válidos e a cadeia é não vazia
+    if not isinstance(string, str) or \
+        not isinstance(cols, int) or \
+        string == '':
         raise ValueError('justifica texto: argumentos invalidos')
+
 
     string = limpa_texto(string)
-    
-    if string == ' ' or string == '' or not isinstance(cols, int):
+
+    # verificar se a cadeia não era apenas caracteres brancos
+    if string == '':
         raise ValueError('justifica texto: argumentos invalidos')
     
-    
+    # cortar o texto, adicionar a primeira linha à lista
+    # enquanto a segunda cadeia for maior que o limite,
+    #  continuar a adicionar à lista
     string1, string2 = corta_texto(string, cols)
     res = [string1]
-
-    # enquanto a segunda cadeia for maior que o limite continuar a adicionar à lista
     while len(string2) > cols:
         string1, string2 = corta_texto(string2, cols)
         res.append(string1)
@@ -131,7 +140,8 @@ def justifica_texto(string, cols):
     if string2 != '':
         res.append(string2)
     
-    # inserir os espaços aos elementos da lista, e avisar a função quando for o último
+    # inserir os espaços aos elementos da lista, 
+    # e avisar a função quando for o último
     for i in range(len(res)):
         if i == len(res)-1:
             res[i] = insere_espacos(res[i], cols, True)
@@ -143,9 +153,17 @@ def justifica_texto(string, cols):
 
 
 
-##  Método de Hondt
+###############################
+#    Metodo    de    Hondt    #
+###############################
 
 def calcula_quocientes(dicionario, mandatos):
+    '''Recebe um dicionário com os partidos e votos de um círculo eleitoral
+    e devolve um novo dicionário com os quocientes conforme o número de mandatos.
+    '''
+
+    # por cada partido criar uma lista que tem os votos a dividir 
+    # por 1, 2, ..., mandatos
     res = {}
     for i in list(dicionario.keys()):
         quocientes = []
@@ -158,9 +176,18 @@ def calcula_quocientes(dicionario, mandatos):
 
 
 def ordenar_dicionario(dicionario):
+    '''Recebe um dicionário com os partidos e votos de um círculo eleitoral
+    e devolve um novo dicionário ordenadodo decrescentemente por número de votos.
+    '''
+
     copia_dicionario = dicionario.copy()
     novo_dicionario = {}
+    # simples algoritmo que insere no novo dicionário as chaves e valores de forma crescente
+    # bastante ineficiente (deve aproximadamente ser um O(n²)) mas assumo não haver muitos partidos.
+    # itera uma cópia do dicionário, encontra o maior e passa-a para o novo dicionário
+    # até a cópia estar vazia
     while len(copia_dicionario) > 0:
+        # maior = [valor, chave]
         maior = [0, '']
         for i in list(copia_dicionario.keys()):
             if copia_dicionario[i] > maior[0]:
@@ -173,18 +200,14 @@ def ordenar_dicionario(dicionario):
 
 
 def atribui_mandatos(dicionario, mandatos):
-    
-    # dicionário com a lista de quocientes
-    quocientes = calcula_quocientes(dicionario, mandatos)
+    '''Recebe o dicionário de um círculo eleitoral e o nº de mandatos como um número inteiro maior que 0.
+    Devolve uma lista com o vencedor de cada mandato por ordem.
+    '''
 
-    # criar dicionário com as mesmas chaves para registar o último divisor que usamos
-    divisor = {}
-    for i in list(dicionario.keys()):
-        divisor[i] = 0
-    
+    quocientes = calcula_quocientes(dicionario, mandatos) 
     dicionario_ordenado = ordenar_dicionario(dicionario)
-
     res = []
+    # através do método de Hondt encontrar o vencedor de cada mandato
     for i in range(mandatos):
         # maior = [valor, chave]
         maior = [0, ''] 
@@ -192,17 +215,24 @@ def atribui_mandatos(dicionario, mandatos):
         # por cada chave da menor para maior (por votos totais)
         # encontrar o maior valor
         for j in list(dicionario_ordenado.keys())[::-1]: 
-            if quocientes[j][divisor[j]] > maior[0]:
-                maior = (quocientes[j][divisor[j]], j)
+            if quocientes[j][0] > maior[0]:
+                maior = (quocientes[j][0], j)
 
         # passar ao próximo divisor do vencedor deste mandato
-        divisor[maior[1]] += 1
+        quocientes[maior[1]].pop(0)
         
         res.append(maior[1])
 
     return res
 
+
+
+
 def obtem_partidos(dicionario):
+    '''Recebe um dicionário com um ou mais círculos eleitorais.
+    Devolve uma lista ordenada alfabeticamente'''
+
+    # adicionar as chaves da lista a um set, typecast para uma lista e ordená-la
     res = set()
     for i in list(dicionario.keys()):
         for j in list(dicionario[i]["votos"].keys()):
@@ -216,7 +246,7 @@ def obtem_partidos(dicionario):
 
 def eh_entrada_invalida(dicionario):
     '''Recebe um dicionário como entrada e devolve um boolean
-    Verifica se a entrada é inválida, devolve um True se for e um False se não'''
+    Verifica se a entrada é inválida, devolve um True se for e um False se for válida.'''
 
     # se não for dicionário ou não tiver chaves é inválida
     if not isinstance(dicionario, dict) or len(dicionario) < 1:
@@ -244,12 +274,14 @@ def eh_entrada_invalida(dicionario):
         if soma == 0:
             return True
 
+    return False
 
 
 
 
 def obtem_resultado_eleicoes(dicionario):
-
+    '''Recebe um dicionário e devolve um tuplo com o nome de cada partido, o número de mandatos que ganhou, e o número total de votos'''
+    
     if eh_entrada_invalida(dicionario):
         raise ValueError('obtem resultado eleicoes: argumento invalido')
 
@@ -269,5 +301,14 @@ def obtem_resultado_eleicoes(dicionario):
     res = []
     for i in list(votos):
         res.append((i, lista_mandatos.count(i), votos[i]))
+
+    return res
+
+
+def produto_interno(vetor1, vetor2):
+
+    res = 0
+    for i in range(len(vetor1)):
+        res += vetor1[i] * vetor2[i]
 
     return res
