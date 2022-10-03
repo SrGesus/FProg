@@ -1,9 +1,11 @@
 
 ###############################
-# Gabriel Ferreira ist1107030 #
+#  Gabriel  Ferreira  107030  #
 ###############################
 
-## Justificação de textos
+
+##############################
+#       Justifica Texto      #
 
 def limpa_texto(string):
 
@@ -209,7 +211,48 @@ def obtem_partidos(dicionario):
     res.sort()
     return res
 
+
+
+
+def eh_entrada_invalida(dicionario):
+    '''Recebe um dicionário como entrada e devolve um boolean
+    Verifica se a entrada é inválida, devolve um True se for e um False se não'''
+
+    # se não for dicionário ou não tiver chaves é inválida
+    if not isinstance(dicionario, dict) or len(dicionario) < 1:
+        return True
+    
+    for i in list(dicionario.keys()):
+
+        # se algum dos distritos não for dicionário ou não tiver as chaves "deputados" (nº inteiro) e "votos" (dicionário) não vazias
+        if not isinstance(dicionario[i], dict) or \
+            not isinstance(dicionario[i].get("deputados", []), int) or \
+            not isinstance(dicionario[i].get("votos", []), dict) or \
+            dicionario[i]["deputados"] < 1 or \
+            len(dicionario[i]["votos"]) < 1:
+
+            return True
+        
+        soma = 0
+        for j in list(dicionario[i]["votos"].keys()):
+            # se algum dos valores nos votos não for número inteiro é inválida
+            if not isinstance(dicionario[i]["votos"][j], int):
+                return True
+            soma += dicionario[i]["votos"][j]
+        
+        # se a soma total de votos num círculo eleitoral é 0 então é inválida
+        if soma == 0:
+            return True
+
+
+
+
+
 def obtem_resultado_eleicoes(dicionario):
+
+    if eh_entrada_invalida(dicionario):
+        raise ValueError('obtem resultado eleicoes: argumento invalido')
+
     partidos = obtem_partidos(dicionario)
     lista_mandatos = []
     votos = {i: 0 for i in partidos}
@@ -228,6 +271,3 @@ def obtem_resultado_eleicoes(dicionario):
         res.append((i, lista_mandatos.count(i), votos[i]))
 
     return res
-    # print(lista_mandatos)
-    # print(votos)
-    # print(ordenar_dicionario(votos))
