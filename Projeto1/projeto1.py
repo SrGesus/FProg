@@ -332,6 +332,7 @@ def retira_zeros_diagonal(matriz, constantes):
 
     return matriz, constantes
 
+
 def eh_diagonal_dominante(matriz):
 
     # sum(|aij|) - |aii| > |aii|
@@ -341,3 +342,17 @@ def eh_diagonal_dominante(matriz):
             return False
     return True
 
+
+def resolve_sistema(matriz, constantes, precisao):
+    matriz, constantes = retira_zeros_diagonal(matriz, constantes)
+    if not eh_diagonal_dominante(matriz):
+        raise ValueError('resolve_sistema: matriz nao diagonal dominante')
+    
+    estimativa = tuple([0 for i in range(len(matriz))])
+    while not verifica_convergencia(matriz, constantes, estimativa, precisao):
+        nova_estimativa = ()
+        for i in range(len(matriz)):
+            nova_estimativa += (estimativa[i] + (constantes[i] - produto_interno(matriz[i], estimativa)) / matriz[i][i],)
+        estimativa = nova_estimativa
+    
+    return estimativa
