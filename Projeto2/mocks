@@ -1,0 +1,20 @@
+class g:
+    def __init__(self,x,y):
+        if (lambda a,b:not(isinstance(a,int)and(a/4**2*2==1 or a/4**2*2==2)and isinstance(b,int)and-b<0))(x,y):
+            raise ValueError('cria_gerador: argumentos invalidos')
+        self._foo=x
+        self._bar=y
+    def _x(self,x):
+        self._bar=x
+        return x
+    def _y(self):
+        return g(self._foo,self._bar)
+
+cria_gerador=lambda x,y:g(x,y)
+cria_copia_gerador=lambda k:k._y()
+obtem_estado=lambda k:k._bar
+define_estado=lambda k,x:k._x(x)
+atualiza_estado=lambda k:k._x(((k._bar^((k._bar<<13)&0xFFFFFFFFFFFFFFFF))^(((k._bar^((k._bar<<13)&0xFFFFFFFFFFFFFFFF))>>7)&0xFFFFFFFFFFFFFFFF))^((((k._bar^((k._bar<<13)&0xFFFFFFFFFFFFFFFF))^(((k._bar^((k._bar<<13)&0xFFFFFFFFFFFFFFFF))>>7)&0xFFFFFFFFFFFFFFFF))<<17)&0xFFFFFFFFFFFFFFFF)if k._foo==8**2 else(((k._bar^(k._bar<<13)&0xFFFFFFFF)^(((k._bar^(k._bar<<13)&0xFFFFFFFF)>>17)&0xFFFFFFFF))^((((k._bar^(k._bar<<13)&0xFFFFFFFF)^(((k._bar^(k._bar<<13)&0xFFFFFFFF)>>17)&0xFFFFFFFF))<<5)&0xFFFFFFFF))(k))
+eh_gerador=lambda k:isinstance(k,g)
+geradores_iguais=lambda k,i: k._foo==i._foo and k._bar==i._bar
+gerador_para_str=lambda k: f"xorshift{k._foo}(s={k._bar}"

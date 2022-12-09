@@ -309,6 +309,7 @@ def obtem_parcela(campo, coordenada):
 def obtem_coordenadas(campo, estado):
     '''Devolve um tuplo com todas as coordenadas do campo cujas parcelas têm o determinado estado
     campo, str -> tuple'''
+
     func = {"limpas": eh_parcela_limpa,
          "tapadas": eh_parcela_tapada,
          "marcadas": eh_parcela_marcada,
@@ -323,6 +324,7 @@ def obtem_coordenadas(campo, estado):
         if k in ["col", "lin"]:
             continue
 
+        # usar a função correspondente
         if eh_estado(campo[k]):
             res += (str_para_coordenada(k),)
     return tuple(res)

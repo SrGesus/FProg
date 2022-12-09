@@ -380,3 +380,5 @@ def resolve_sistema(matriz, constantes, precisao):
     # mais eficiente usar uma lista e converter a tuplo 
     # pois evita nova alocação e definição a cada novo elemento
     return tuple(estimativa)
+
+print(justifica_texto("blah blah blah lol haha a tua mae", 7))

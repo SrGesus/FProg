@@ -1,1 +1,3 @@
 __pycache__
+.pytest_cache
+proj_tester.py
